@@ -1,13 +1,20 @@
-Tk::Month VERSION 1.0 - Tk Calendar month by month browser.
+Tk::Month VERSION 1.1 - Tk Calendar month by month browser.
 
 DESCRIPTION
-Tk::Month is a Tk month browser widget, allowing days, weeks etc. to
-be selected for some externally defined action.
+Tk::Month
+	is a Tk month browser widget, allowing days, weeks etc. to
+	be selected for some externally defined action.
+
+Tk::Panel
+	a collapsible Frame-like widget with a title.
+
+Tk::StrfClock
+	a digital clock based on strftime.
 
 COPYRIGHT
-Copyright (c) 1998-1999 Anthony Iano-Fletcher.  All rights reserved.  This
-module is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+Copyright (c) 1998-2000 Anthony Iano-Fletcher. All rights reserved.
+These modules are free software; you can redistribute them and/or
+modify them under the same terms as Perl itself.
 
 This code is supplied as-is - use at your own risk.
 
@@ -27,8 +34,10 @@ As this is a Tk GUI module it is hard to test non-interactively.
 Try
 	perl Month.pm
 
-There is a builtin test procedure which is run iff the module itself
-is run.
+There is a builtin test procedure which is run if and only if
+the module itself is run.
+
+There is also a demonstration in 'demo'.
 
 TODO
 Nothing planned.

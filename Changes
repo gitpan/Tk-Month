@@ -1,5 +1,19 @@
 Revision history for Perl extension Tk::Month
 
+1.1  24 April 2000
+	- Added a slightly different DoAfterIdle function to work with
+	  the newer Tk distributions.
+
+	- Allowed the user to add menu options to the title menu.
+
+ 	- Removed the 'close' and 'print month' menu options, and config
+  	  options '-close' and '-printcomand'. Not needed because the user can
+ 	  added memu items.
+
+	- updated the pod documentation.
+
+	- Added 2 other widgets - StrfClock and Panel.
+
 1.0  13 Sept 1999
 	- started packaging it as a CPAN module.
 

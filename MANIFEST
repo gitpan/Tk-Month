@@ -1,4 +1,6 @@
 Changes
+Panel.pm
+StrfClock.pm
 Month.pm
 MANIFEST
 Makefile.PL

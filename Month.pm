@@ -2,7 +2,7 @@
 
 ;#                                                               
 ;# COPYRIGHT
-;# Copyright (c) 1998-1999 Anthony R Iano-Fletcher.  All rights reserved.  This
+;# Copyright (c) 1998-2000 Anthony R Iano-Fletcher.  All rights reserved.  This
 ;# module is free software; you can redistribute it and/or modify it
 ;# under the same terms as Perl itself.
 ;#
@@ -14,11 +14,11 @@
 ;# This is a Tk month browser.
 ;# Place into Tk/Month.pm somewhere in your perl-lib path.
 
-# version 1.0
-
 use 5;
 
 package Tk::Month;
+
+BEGIN { $Tk::Month::VERSION = '1.1'; }
 
 use strict;
 use vars qw(
@@ -65,15 +65,15 @@ sub Populate
 
 	# Set up extra configuration
 	$self->ConfigSpecs(
-		'-month'	=> ['PASSIVE',undef,undef, undef],
-		'-year'		=> ['PASSIVE',undef,undef, undef],
+		'-month'	=> ['PASSIVE',undef,undef, ''],
+		'-year'		=> ['PASSIVE',undef,undef, ''],
 		'-command'	=> ['PASSIVE',undef,undef, \&defaultAction],
 		'-printformat'	=> ['PASSIVE',undef,undef, '%e %B %Y'],
 		'-title'	=> ['PASSIVE',undef,undef, '%B %Y'],
 		'-update'	=> ['PASSIVE',undef,undef, 0],
-		'-printcommand'	=> ['PASSIVE',undef,undef, \&defaultPrint],
+		#'-printcommand'	=> ['PASSIVE',undef,undef, \&defaultPrint],
 		'-navigation'	=> ['PASSIVE',undef,undef, 1],
-		'-close'	=> ['PASSIVE',undef,undef, $self],
+		#'-close'	=> ['PASSIVE',undef,undef, $self],
 
 		# configurable from Xdefaults file.
 		'-includeall'	=> ['PASSIVE','includeall','IncludeAll', 1],
@@ -99,6 +99,9 @@ sub Populate
 	$self;
 }
 
+# DoWhenIdle seems to be replaced by afterIdle in Tk800.018.
+sub afterIdle { &DoWhenIdle; }
+
 ;## Update the widget when you get a chance.
 sub DoWhenIdle
 {
@@ -120,15 +123,20 @@ sub make
 
 	my $self	= shift;
 
+	my $width = 2;
+
 	# First create all the buttons in a grid.
 
 	# navigation row.
-	$self->{title} = $self->Menubutton()->grid(
-			'-row'		=> 0,
-			'-column'	=> 2,
-			'-columnspan'	=> 4,
-			'-sticky'	=> 'nsew',
+	$self->{title} = $self->Menubutton(
+		-width		=> 15,
+	)->grid(
+		-row		=> 0,
+		-column		=> 2,
+		-columnspan	=> 4,
+		-sticky		=> 'nsew',
 	);
+
 
 	# Positions (0,0), (0,1), (0,6), (0,7) are the
 	# navigation buttons.
@@ -140,7 +148,10 @@ sub make
 		{
 			$self->{'button'}->{$r}->{$c} =
 				$self->Button(
-					'-width'	=> 1,
+					# width is in chars
+					-width	=> $width,
+					#-padx	=> 0,
+					#-pady	=> 0,
 				)->grid(
 					'-row'		=> $r,
 					'-column'	=> $c,
@@ -183,6 +194,7 @@ sub navigate
 	my $self = shift;
 
 	my $navigation = $self->{navigation};
+	my $width = 2;
 
 	# Don't do anything if there is really nothing to do.
 	return if (
@@ -200,43 +212,51 @@ sub navigate
 		debug "creating navigation buttons.\n";
 
 		$self->{'button'}->{0}->{0} = $self->Button(
-			'-text'		=> '<<',
-			'-command'	=> [\&advance,$self, -1 - $#year ],
-			'-width'	=> 1,
+			-text	=> '<<',
+			-command=> [\&advance,$self, -1 - $#year ],
+			-width	=> $width,
+			#-padx	=> 0,
+			#-pady	=> 0,
 		)->grid(
-			'-row'		=> 0,
-			'-column'	=> 0,
-			'-sticky'	=> 'nsew',
+			-row	=> 0,
+			-column	=> 0,
+			-sticky	=> 'nsew',
 		);
 
 		$self->{'button'}->{0}->{1} = $self->Button(
-			'-text'		=> '<',
-			'-command'	=> [\&advance,$self, -1 ],
-			'-width'	=> 1,
+			-text	=> '<',
+			-command=> [\&advance,$self, -1 ],
+			-width	=> $width,
+			#-padx	=> 0,
+			#-pady	=> 0,
 		)->grid(
-			'-row'		=> 0,
-			'-column'	=> 1,
-			'-sticky'	=> 'nsew',
+			-row	=> 0,
+			-column	=> 1,
+			-sticky	=> 'nsew',
 		);
 
 		$self->{'button'}->{0}->{7} = $self->Button(
-			'-text'		=> '>>',
-			'-command'	=> [\&advance,$self, 1+$#year ],
-			'-width'	=> 1,
+			-text	=> '>>',
+			-command=> [\&advance,$self, 1+$#year ],
+			-width	=> $width,
+			#-padx	=> 0,
+			#-pady	=> 0,
 		)->grid(
-			'-row'		=> 0,
-			'-column'	=> 7,
-			'-sticky'	=> 'nsew',
+			-row	=> 0,
+			-column	=> 7,
+			-sticky	=> 'nsew',
 		);
 
 		$self->{'button'}->{0}->{6} = $self->Button(
-			'-text'		=> '>',
-			'-command'	=> [\&advance,$self, +1 ],
-			'-width'	=> 1,
+			-text	=> '>',
+			-command=> [\&advance,$self, +1 ],
+			-width	=> $width,
+			#-padx	=> 0,
+			#-pady	=> 0,
 		)->grid(
-			'-row'		=> 0,
-			'-column'	=> 6,
-			'-sticky'	=> 'nsew',
+			-row	=> 0,
+			-column	=> 6,
+			-sticky	=> 'nsew',
 		);
 
 		#---------------------------------
@@ -322,6 +342,7 @@ sub navigate
 			'-underline'	=> 0,
 		);
 		
+		if (0) {
 		$menu->command(
 			'-label'        => 'Print month',
 			'-command'      => [ sub {
@@ -336,12 +357,7 @@ sub navigate
 			'-command'      => [ sub { (shift)->cget('-close')->destroy(); }, $self ],
 			'-underline'	=> 0,
 		);
-
-
-		0 && $menu->command(
-			'-label'        => 'Navigation off',
-			'-command'      => [ 'configure', $self, '-navigation' => 0  ],
-		);
+		}
 
 	}
 	else
@@ -386,6 +402,15 @@ sub refresh
 	debug "refresh: month is $month and year is $year.\n";
 	debug "first = '$first'.\n";
 
+	# check that the object still actually exists.....
+	unless ($self->{title}->IsWidget())
+	{
+		debug "$self is no longer a widget!\n";
+
+		# bail out now.
+		return;
+	}
+
 	##### Deal with navigation first.... ####
 	$self->navigate();
 
@@ -413,7 +438,7 @@ sub refresh
 	debug "today is '$today'\n";
 
 	# Deal with the title button...
-	$title = strftime($title, localtime($start));
+	$title = POSIX::strftime($title, localtime($start));
 	$self->{title}->configure('-text' => $title);
 
 	# rewind to first day in grid.
@@ -436,7 +461,7 @@ sub refresh
 	# configure the top left button.
 	$self->{'button'}->{1}->{0}->configure(
 		'-text'		=> '?',
-		'-command'	=> [ $command, $title, ( [ strftime($printformat, localtime()) ] ) ],
+		'-command'	=> [ $command, $title, ( [ POSIX::strftime($printformat, localtime()) ] ) ],
 		'-fg'		=> $fg,
 		'-bg'		=> $bg,
 		@config,
@@ -453,7 +478,7 @@ sub refresh
 	for (my $i=1; $i<=42; ++$i)
 	{
 		my @lt = localtime($start);
-		my $when = strftime($printformat, @lt);
+		my $when = POSIX::strftime($printformat, @lt);
 
 		debug "setting button for '$when'.\n";
 
@@ -860,7 +885,7 @@ sub months
 	@year;
 }
 
-;# This runs occationally updating the calender.
+;# This runs occationally updating the calendar.
 sub tick
 {
 	debug "args: ", @_, "\n";
@@ -870,6 +895,15 @@ sub tick
 	my $p		= shift;
 
 	debug "tick period is $p msecs.\n";
+
+	# check that the object still actually exists.....
+	unless ($self->{title}->IsWidget())
+	{
+		debug "$self is no longer a widget!\n";
+
+		# bail out now.
+		return undef;
+	}
 
 	# update it.
 	$self->refresh();
@@ -908,14 +942,46 @@ sub defaultAction
 	#print join(', ', @_) . "\n";
 }
 
-sub defaultPrint { print "@_\n"; }
+#sub defaultPrint { print "@_\n"; }
 
+# Add an entry to the title menu.
+sub command 
+{
+	my $self = shift;
+
+	unless ($self->{title}->IsWidget())
+	{
+		debug "$self is no longer a widget!\n";
+		return;
+	}
+
+	$self->{title}->command(@_);
+}
+
+# Add a separator to the title menu.
+sub separator
+{
+	my $self = shift;
+
+	unless ($self->{title}->IsWidget())
+	{
+		debug "$self is no longer a widget!\n";
+		return;
+	}
+
+	$self->{title}->separator(@_);
+}
+
+;#################################################################
+;# A default startup routine.
 sub test
 {
 	# do some remedial argument parsing.
 	my $quick = 0;
-	for (@ARGV)
+	while (@ARGV)
 	{
+		$_ = shift(@ARGV);
+
 		if ($_ eq '-d')
 		{
 			# set up debugging...
@@ -931,59 +997,92 @@ sub test
 			};
 			';
 		}
-		elsif ($_ eq '-q')
+		elsif (/^-/)
 		{
-			$quick = 1;
+			warn "Unknown option: '$_'.\n";
+		}
+		else
+		{
+			last;
 		}
 	}
+
+	my ($month, $year) = (localtime(time))[4,5];
+	$year += 1900;
 
 	# Test script for the Tk Tk::Month widget.
 	use Tk;
 	use Tk::Optionmenu;
 	#use Tk::Month;
 
-
 	my $top=MainWindow->new();
 
-	$top->Button('-text' => 'Exit', '-command' => \&exit )->pack();
+	my $f = $top->Frame()->pack(
+			-side	=> 'top',
+			-fill	=> 'x',
+			-expand => 'yes',
+	);
+	my $m = $f->Menubutton(
+		'-text'		=> 'File',
+	)->pack(
+		-side	=> 'left',
+	);
 
-
+	#########################################################
 	# can set the week days here but not recommended.
 	# Tk::Month::setWeek( qw(Su M Tu W Th F Sa) );
 
 	my $a = $top->Month(
 		'-printformat'	=> '%a %e',
 		'-includeall'	=> 0,
-		#'-month'	=> 2,
-		#'-year'	=> 1982,
+		'-month'	=> $month,
+		'-year'		=> $year,
 	)->pack();
 
-	MainLoop() if $quick;
+	$a->separator();
+	$a->command(
+		-label		=> 'Print month',
+		-command	=> [ sub { my $s = shift; print $s->cget('-month'), " ", $s->cget('-year'), "\n"; }, $a, ],
+		-underline	=> 0,
+	);
+	$a->command(
+		-label        => 'Close',
+		-command      => [ sub { (shift)->destroy(); }, $a ],
+		-underline	=> 0,
+	);
+	#########################################################
 
-	my $c = $top->Month(
-		'-navigation'	=> 0,
-		#'-relief'	=> 'sunken',
-		#'-relief'	=> 'groove',
-		'-relief'	=> 'ridge',
-		'-bd'		=> 3,
-		'-buttonrelief'	=> 'flat',
-		'-buttonbd'	=> 0,
-	)->pack();
+	# modify the month....
+	$m->command(
+		-label		=> 'New',
+		-command	=> sub { $top->Month()->pack(); },
+	);
 
-	# after a few seconds change this widget.
-	after 10*1000, [ 'configure', $c, '-month' => 'Dec' ];
-	after 20*1000, [ 'configure', $c, '-navigation' => 1 ];
-	after 30*1000, [ 'configure', $c, '-navigation' => 0 ];
+	$m->separator();
 
-	# Set up an option puul down list.
-	my $m;
-	$top->Optionmenu(
-		'-text'		=> 'Month',
-		'-relief'	=> 'raised',
-		'-textvariable'	=> \$m,
-		'-options'	=> [ @Tk::Month::year ],
-		'-command'	=> sub { $c->configure('-month'=>$m); },
-	)->pack();
+	for my $i qw(raised flat sunken)
+	{
+		$m->command(
+			-label		=> ucfirst($i),
+			-command	=> sub { $a->configure(-buttonrelief => $i); },
+		);
+	}
+
+	$m->separator();
+
+	for my $i qw(on off)
+	{
+		$m->command(
+			-label		=> "Navigation $i",
+			-command	=> sub { $a->configure(-navigation => ($i eq 'on' ? 1 : 0)); },
+		);
+	}
+
+	$m->separator();
+	$m->command(
+		-label		=> 'Exit',
+		-command	=> sub { exit; },
+	);
 
 	MainLoop();
 
@@ -1006,31 +1105,33 @@ Tk::Month - Calendar widget which shows one month at a time.
   use Tk;
   use Tk::Month;
 
-  $table = $parent->Tk::Month(
+  $m = $parent->Tk::Month(
 		-month		=> 'July',
 		-year		=> '1997',
 		-title		=> '%b %y',
 		-command	=> \&press,
 		-printformat	=> '%e',
-		-printcommand	=> \&printMonth,
 		-navigation	=> [0|1],
-		-close		=> $widget,
 		-includeall	=> [0|1],
 		-showall	=> [0|1],
 		-first		=> [0|1|2|3|4|5|6],
 	)->pack();
 
-  $table->configure(
+  $m->configure(
 		-month		=> 'July',
 		-year		=> '1997',
 		-command	=> \&press,
-		-printcommand	=> \&printMonth,
 		-printformat	=> '%e %B %Y %A',
 		-navigation	=> [0|1],
-		-close		=> $widget,
 		-includeall	=> [0|1],
 		-showall	=> [0|1],
 		-first		=> [0|1|2|3|4|5|6],
+  );
+
+  $m->separator();
+  $m->command(
+		-label		=> 'Label',
+		-command	=> \&callback,
   );
 
 =head1 DESCRIPTION 
@@ -1038,6 +1139,22 @@ Tk::Month - Calendar widget which shows one month at a time.
 Tk::Month is a general purpose calendar widget
 which shows one month at a time and allowes
 user defined button actions.
+
+=head1 FUNCTIONS
+
+=head2 $m->separator();
+
+	Adds a separator to the title menu.
+
+=head2 $m->command(...);
+
+	Adds an entry to the title menu. This can be used to add 
+	extra functionality, such as closing the calendar widget or
+	printing a month.
+
+=over 3
+
+=back 
 
 =head1 OPTIONS
 
@@ -1069,19 +1186,13 @@ user defined button actions.
 	array of arrays to the -command function.
 	The default is '%e %B %Y'.
 
-=head2 -printcommand	=> \&print
+=head2 DISCONTINUED -printcommand	=> \&print
 
-	Set the command to execute when the print menu option is selected.
-	This function must accept the following arguments:
-                <month>, <year>, <first-day-of-week>
-	The default is to print out the list on standard output.
+	Add an entry to the title menu using the 'command' function.
 
-=head2 -close		=> $widget,
+=head2 DISCONTINUTED -close		=> $widget,
 
-	When the close option is selected from the pull down
-	menu close this widget. The default is to close the Tk::Month
-	widget. Useful when you have a popup window containing
-	only the Tk::Month widget.
+	Add an entry to the title menu using the 'command' function.
 
 =head2 -showall		=> [0|1]
 
