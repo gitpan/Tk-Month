@@ -17,7 +17,7 @@
 
 BEGIN { $^W = 1; }	# warnings on.
 
-package Panel;
+package Tk::Panel;
 
 use strict;
 use vars qw(@ISA $VERSION);
@@ -28,7 +28,7 @@ require Tk::Widget;
 
 Construct Tk::Widget 'Panel';
 
-$VERSION = '1.3';
+$VERSION = '1.4';
 @ISA = qw ( Tk::Derived Tk::Frame);
 
 sub debug {};
@@ -329,7 +329,7 @@ Tk::Panel - A collapsable frame with title.
   use Tk;
   use Tk::Panel;
 
-  $m = $parent->Tk::Panel(
+  $m = $parent->Panel(
 		-relief	=> <relief of inner boundary>,
 		-border	=> <border size of inner boundary>
 		-text	=> <text of title>

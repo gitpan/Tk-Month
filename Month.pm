@@ -20,7 +20,7 @@ use 5;
 
 package Tk::Month;
 
-$VERSION = '1.3';
+$VERSION = '1.4';
 
 use strict;
 use vars qw(

@@ -40,7 +40,7 @@ There is a built-in test procedure which is run if and only if
 the module itself is run. In the case of Month.pm and StrfClock.pm
 the built-in is actually useful.
 
-There is also a demonstration in 'demo'. Run after doing a make.
+There is also a demonstration in './t/demo'. Run after doing a make.
 
 TODO
 Nothing planned.

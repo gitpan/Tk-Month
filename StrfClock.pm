@@ -32,7 +32,7 @@ use Tk::Optionmenu;
 
 use vars qw($VERSION @ISA $AUTOLOAD %flags);
 
-$VERSION	= '1.3';
+$VERSION	= '1.4';
 
 @ISA	= qw (Exporter);
 
