@@ -1,4 +1,4 @@
-Tk::Month VERSION 1.2 - Tk Calendar month by month browser.
+Tk::Month VERSION 1.3 - Tk Calendar month by month browser.
 
 DESCRIPTION
 Tk::Month
@@ -12,9 +12,9 @@ Tk::StrfClock
 	a digital clock based on strftime.
 
 COPYRIGHT
-Copyright (c) 1998-2000 Anthony Iano-Fletcher. All rights reserved.
-These modules are free software; you can redistribute them and/or
-modify them under the same terms as Perl itself.
+Copyright (c) 1998-2002 Anthony Iano-Fletcher. All rights reserved.
+These modules are free software; you can redistribute them and/or modify
+them under the same terms as Perl itself.
 
 This code is supplied as-is - use at your own risk.
 
@@ -46,5 +46,5 @@ TODO
 Nothing planned.
 
 SUGGESTIONS
-Send suggestions, bugs, etc. to arif@compusnet.com.
+Send suggestions, bugs, etc. to Anthony+perl@Iano-Fletcher.org.
 

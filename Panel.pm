@@ -28,7 +28,7 @@ require Tk::Widget;
 
 Construct Tk::Widget 'Panel';
 
-$VERSION = '1.2';
+$VERSION = '1.3';
 @ISA = qw ( Tk::Derived Tk::Frame);
 
 sub debug {};

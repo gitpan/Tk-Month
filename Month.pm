@@ -1,4 +1,4 @@
-#! /usr/local/bin/perl -wI.
+#! /usr/bin/env perl
 
 ;#                                                               
 ;# COPYRIGHT
@@ -14,11 +14,13 @@
 ;# This is a Tk month browser.
 ;# Place into Tk/Month.pm somewhere in your perl-lib path.
 
+BEGIN { $^W = 1; }
+
 use 5;
 
 package Tk::Month;
 
-$VERSION = '1.2';
+$VERSION = '1.3';
 
 use strict;
 use vars qw(
@@ -644,6 +646,8 @@ sub Submenu
 # pass the desired weekday names as arguments.
 sub setWeek
 {
+	debug "args: @_\n";
+
 	# days of the week.
 	@week = @_;
 	@week = &abreviatedWeekDays() unless @week;
@@ -783,11 +787,15 @@ sub year2number
 # Take an array and return the inverse associative array.
 sub invert
 {
+	#warn "args: @_\n";
+
 	my %i = ();
-	for (my $i=0; $i<$#_; ++$i)
+	for (my $i=0; $i<=$#_; ++$i)
 	{
 		$i{lc($_[$i])} = $i;
 	}
+
+	#warn "args: ", %i, "\n";
 
 	%i;
 }
@@ -1060,7 +1068,7 @@ sub test
 
 	$m->separator();
 
-	for my $i qw(raised flat sunken)
+	for my $i ( qw(raised flat sunken) )
 	{
 		$m->command(
 			-label		=> ucfirst($i),
@@ -1070,7 +1078,7 @@ sub test
 
 	$m->separator();
 
-	for my $i qw(on off)
+	for my $i ( qw(on off) )
 	{
 		$m->command(
 			-label		=> "Navigation $i",
@@ -1105,7 +1113,7 @@ Tk::Month - Calendar widget which shows one month at a time.
   use Tk;
   use Tk::Month;
 
-  $m = $parent->Tk::Month(
+  $m = $parent->Month(
 		-month		=> 'July',
 		-year		=> '1997',
 		-title		=> '%b %y',

@@ -2,14 +2,14 @@
 
 ;#                                                               
 ;# COPYRIGHT
-;# Copyright (c) 1998-2000 Anthony R Iano-Fletcher.  All rights reserved.  This
-;# module is free software; you can redistribute it and/or modify it
-;# under the same terms as Perl itself.
+;# Copyright (c) 1998-2002 Anthony R Iano-Fletcher.  All rights
+;# reserved.  This module is free software; you can redistribute it
+;# and/or modify it under the same terms as Perl itself.
 ;#
-;# Please retain my name on any bits taken from this code.
-;# This code is supplied as-is - use at your own risk.
-;#                                                               
-;#			AR Iano-Fletcher.
+;# Please retain my name on any bits taken from this code.  This code is
+;# supplied as-is - use at your own risk.
+;#
+;#                      AR Iano-Fletcher.
 
 # This is a X/TK digital clock widget based on strftime.
 
@@ -18,46 +18,165 @@ BEGIN { $^W = 1; }
 package Tk::StrfClock;
 
 require 5.001;
+require Exporter;
+
 use strict;
 use Carp;
 use POSIX;
 use Tk;
 use Tk::Label;
+use Tk::Button;
+use Tk::Menubutton;
+use Tk::Optionmenu;
 
-use vars qw($VERSION @ISA);
 
-$VERSION	= '1.2';
+use vars qw($VERSION @ISA $AUTOLOAD %flags);
 
-@ISA = qw (Tk::Derived Tk::Label);
+$VERSION	= '1.3';
+
+@ISA	= qw (Exporter);
 
 Construct Tk::Widget 'StrfClock';
 
+;# Extra flags and their defaults.
+%flags = (
+	-type		=> 'Label',	# Label, Button, etc..
+	-format		=> '%c',	# strftime string
+	-update		=> 'a',		# auto
+	-advance	=> 0,		# seconds
+	-ontick		=> undef,	# function
+	-action		=> undef,	# =~ transformation
+);
+
 sub debug {};
 
-sub Populate
+;# Create the widget.
+sub new
 {
 	debug "args: @_\n";
 
-	my $self = shift;
-	$self->SUPER::Populate(@_);
+	my $class = shift;
+	my $top = shift;
+	
+	# bless
+	my $self = {};
+	bless $self, $class;
+	debug "self is $self.\n";
 
-	my %args = %{$_[0]};
-	for (keys %args) { debug "$_ '$args{$_}'\n"; };
+	# Initialise.
+	$self->init($top, @_);
 
-	# Set up extra configuration
-	$self->ConfigSpecs(
-		#'-format'	=> ['PASSIVE', 'format','Format', '%I:%M:%S%p, %A, %e %B %Y.'],
-		'-format'	=> ['PASSIVE', 'format','Format', '%c'],
-		'-update'	=> ['PASSIVE', 'update','Update', 'a'],
-		'-advance'	=> ['PASSIVE', 'advance','Advance', 0],	# secs.
-	);
-
-	# the string.
-	$self->{datetime} = '';
-	$self->configure(-textvariable => \$self->{datetime});
+	$self;
 }
 
-# DoWhenIdle seems to be replaced by afterIdle in Tk800.018.
+;# Initialise the widget.
+sub init
+{
+	debug "args: @_\n";
+
+	# Grab the args.
+	my $self = shift;
+	my $top = shift;
+	my %args = @_;
+
+	# Add defaults to the widget.
+	while ( my($k, $v) = each(%flags) )
+	{
+		$self->{$k} = $v;
+	}
+
+	# Configure the Tk::StrfClock options.
+	for my $a (keys %flags)
+	{
+	 	next unless (exists($args{$a}));
+		$self->{$a} = delete($args{$a});
+
+		debug "saving arg $a.\n";
+	}
+
+	# Construct the base widget depending on the type.
+	if    ($self->{'-type'} eq 'Label')	
+			{ $self->{base} = $top->Label(%args); }
+	elsif ($self->{'-type'} eq 'Button')
+			{ $self->{base} = $top->Button(%args); }
+	elsif ($self->{'-type'} eq 'Menubutton')	
+			{ $self->{base} = $top->Menubutton(%args); }
+	elsif ($self->{'-type'} eq 'Optionmenu')	
+			{ $self->{base} = $top->Optionmenu(%args); }
+	else	
+	{
+		carp "__PACKAGE__: unknown type '$self->{'-type'}'";
+
+		$self->{'-type'} = 'Label';
+		$self->{base} = $top->Label(%args); 
+	}
+
+	# Sync the string in the base widget.
+	$self->{datetime} = '';
+	$self->{base}->configure(-textvariable => \$self->{datetime});
+
+	# Start ticking.
+	$self->tick();
+
+	# return the object.
+	$self;
+}
+
+;# Pack is just the same as the base widget.
+;# Must return the correct object.
+sub pack { my $self = shift; $self->{base}->pack(@_); $self; }
+
+;# Overload the configure function.
+sub configure
+{
+	# Grab the widget and the args.
+	my $self = shift;
+	my %args = @_;
+	##for (keys %args) { debug "$_ '$args{$_}'\n"; };
+
+	# Stop -type configures.
+	if (exists($args{'-type'}))
+	{
+		carp "Cannot configure type now!";
+		delete($args{'-type'});
+	}
+	
+	# Configure the other Tk::StrfClock options.
+	for my $a (keys %flags)
+	{
+	 	next unless (exists($args{$a}));
+		$self->{$a} = delete($args{$a});
+	}
+
+	# Configure the base widget.
+	$self->{base}->configure(%args);
+
+	# Retick after the configure - this resets the tick
+	# and does a refresh to boot.
+	$self->tick();
+}
+
+;# The cget function....
+sub cget
+{
+	# Grab the widget and the args.
+	my $self = shift;
+
+	# Check for private members
+	for my $a (@_)
+	{
+		for my $b (keys %flags)
+		{
+			return $self->{$a} if ($a eq $b);
+		}
+	
+		# Pass onto the base widget
+		return $self->{base}->cget($a);
+	}
+
+}
+
+;# DoWhenIdle seems to be replaced by afterIdle in Tk800.018.
 sub afterIdle { &DoWhenIdle; }
 
 sub DoWhenIdle
@@ -66,24 +185,10 @@ sub DoWhenIdle
 
 	my $self = shift;
 
-	# cancel any previous ticking.
-	if (exists($self->{after}))
-	{
-		debug "cancelling after '$self->{after}'\n";
-
-		# works but produces an odd error.
-		#$self->afterCancel($self->{after}) if (exists($self->{after}));
-
-		# work around
-		$self->Tk::after('cancel' => $self->{after});
-
-		delete($self->{after});
-	}
-
 	$self->tick();
 }
 
-# Refresh the time.
+;# Refresh the time.
 sub refresh
 {
 	debug "args: @_\n";
@@ -108,16 +213,26 @@ sub refresh
 	my $str	= $self->cget('-format');
 	$str	=~ s/%f/&th($localtime[3])/eg;
 
-	debug "$self: format is '$str'\n";
+	debug "$self: format is now '$str'\n";
 
 	# finally pass it through strftime.
 	$self->{datetime} = POSIX::strftime($str, @localtime);
+	#
+	# Apply any optional action to the string.
+	my $act = $self->cget('-action');
+	if (defined($act))
+	{
+		debug "$self: format before action is '$str'\n";
+		debug "$self: action is '$act'\n";
+
+		eval "\$self->{datetime} =~ $act";
+	}
 
 	@localtime;
 }
 
-# Calculate the number of seconds before we need to update.
-# Usage: $nap = $C->until(@localtime);
+;# Calculate the number of seconds before we need to update.
+;# Usage: $nap = $C->until(@localtime);
 sub until
 {
 	debug "args: @_\n";
@@ -182,16 +297,16 @@ sub until
 	$update;
 }
 
-# Tick every so often and update the label.
-# $self->tick().
+;# Tick every so often and update the label.
+;# $self->tick().
 sub tick
 {
 	debug "args: @_\n";
 	my $self = shift;
 
 	# don't do anything unless these are set up.....
-	return unless defined($self->cget('-update'));
-	return unless defined($self->cget('-format'));
+	return unless defined($self->{'-update'});
+	return unless defined($self->{'-format'});
 
 	# update the date/time string....
 	my @localtime = $self->refresh();
@@ -199,10 +314,29 @@ sub tick
 	# If update is a letter then sync on a minute, hour or day.
 	my $update = $self->until(@localtime);
 
+	debug "update is in $update seconds.\n";
+
 	return undef unless ($update > 0 );
+	
+	# If there is an ontick function, do it.
+	&{$self->cget('-ontick')}($self) if (defined($self->cget('-ontick')));
+
+	# cancel any previous ticking.
+	if (exists($self->{after}))
+	{
+		debug "cancelling after '$self->{after}'\n";
+
+		# works but produces an odd error.
+		$self->{base}->afterCancel($self->{after});
+
+		# work around
+		$self->{base}->Tk::after('cancel' => $self->{after});
+
+		delete($self->{after});
+	}
 
 	# don't forget to tick again....
-	$self->{after} = $self->after($update*1000, [ 'tick', $self]);
+	$self->{after} = $self->{base}->after($update*1000, [ 'tick', $self]);
 
 	debug "after ref '", ref($self->{after}), "'\n";
 	debug "$self: updating in $update seconds ($self->{after}).\n";
@@ -210,9 +344,9 @@ sub tick
 	$self->{after};
 }
 
-# return the correct ending for first (1st), etc..
-# This is hardwired and needs to be modified
-# for each language.
+;# return the correct ending for first (1st), etc..
+;# This is hardwired and needs to be modified
+;# for each language.
 sub th
 {
 	debug "args @_\n";
@@ -231,7 +365,24 @@ sub th
 	$f;
 }
 
-# Demonstration application.
+;# Casecade all the missing functions to the base.
+sub AUTOLOAD
+{
+	debug "args: @_\n";
+	debug "\$AUTOLOAD=$AUTOLOAD\n";
+
+	my $self = shift;
+	croak "$AUTOLOAD: '$self' is not an object!\n" unless ref($self);
+
+	# What are we trying to do?
+	my $what = $AUTOLOAD;
+	$what =~ s/.*:://;
+
+	# Cascade this to the base widget.
+	eval "\$self->{base}->$what(\@_)";
+}
+
+;# Demonstration application.
 sub test
 {
 	debug __PACKAGE__ . " version $VERSION\n";
@@ -243,21 +394,18 @@ sub test
 
 		# set up debugging...
 		eval '	sub debug {
-			my ($package, $filename, $line,
-				$subroutine, $hasargs, $wantargs) = caller(1);
-			$line = (caller(0))[2];
+				my ($package, $file, $line,
+					$subroutine, $hasargs, $wantargs) = caller(1);
+				$line = (caller(0))[2];
 	
-			print STDERR "$subroutine: ";
+				print STDERR "$file:$line $subroutine: ", @_;
 	
-			if (@_) {print STDERR @_; }
-			else    {print "Debug $filename line $line.\n";}
 			};
 		';
 	}
 
 	# Test script
 	use Tk;
-	use Tk::Menubutton;
 	#use Tk::StrfClock;
 
 	my $top=MainWindow->new();
@@ -273,113 +421,248 @@ sub test
 		'%Y %B %e %H%p',
 		'%Y %B %e %T',
 		'%A %p',
+		'%H:%M',
 		'%T',
 	);
+
 	my @args = ();
 	for (@_)
 	{
 		push (@args, ($_ eq 'test' ) ? @formats : $_);
 	}
 
-	# top button frame...
-	my $bframe = $top->Frame(
-	)->pack(
-		-expand	=> 1,
-		-fill	=> 'y',
-		-side	=> 'top',
-		-anchor	=> 'nw',
-	);
-
-	my $cframe = $top->Frame(
-		#-relief	=> 'sunken',
-		#-border	=> 1,
-		-background	=> 'white',
-	)->pack(
-		-expand	=> 1,
-		-fill	=> 'both',
-		-side	=> 'top',
-		-anchor	=> 'nw',
-	);
-
-	# primary StrfClock widget.
-	my $dt = $cframe->StrfClock(
-		-foreground	=> 'blue',
-		-background	=> 'white',
-	)->pack(
-		-anchor	=> 'w',
-		-expand	=> 1,
-		-fill	=> 'y',
-	);
-
-	# take the first argument if its there.
-	$dt->configure( -format	=> shift(@args),) if (@args);
-
-	###############################################
-	# the File menu button....
-	my $file = $bframe->Menubutton(
-		-text		=> 'File',
-		-tearoff	=> 0,
-		-border		=> 0,
-		-borderwidth	=> 0,
-	)->pack(
-		-side		=> 'left'
-	);
-	$file->configure(
-		-activebackground	=> $file->cget('-background'),
-	);
-
-
-	# exit.
-	#$file->separator();
-	$file->command(
-		"-label"	=> 'Exit',
-		"-command"	=> sub { exit; },
-	);
-	###############################################
-
-	# the File menu button....
-	my $Format = $bframe->Menubutton(
-		-text		=> 'Format',
-		-tearoff	=> 0,
-		-border		=> 0,
-		-borderwidth	=> 0,
-	)->pack(
-		-side	=> 'left',
-	);
-	$Format->configure(
-		-activebackground	=> $Format->cget('-background'),
-	);
-
-	for my $format (@formats)
+	########################################
+	# Label
+	if (0)
 	{
-		$Format->command(
-			"-label"	=> $format,
-			"-command"	=> [ sub { $_[0]->configure(-format => $_[1]); }, $dt, $format ],
+		my $bframe = $top->Frame(
+		)->pack(
+			-expand	=> 1,
+			-fill	=> 'y',
+			-side	=> 'top',
+			-anchor	=> 'nw',
 		);
-	}
+
+		my $cframe = $top->Frame(
+			#-relief	=> 'sunken',
+			#-border	=> 1,
+			-background	=> 'white',
+		)->pack(
+			-expand	=> 1,
+			-fill	=> 'both',
+			-side	=> 'top',
+			-anchor	=> 'nw',
+		);
+	
+		# primary Tk::StrfClock widget.
+		my $dt = $cframe->StrfClock(
+			-foreground	=> 'blue',
+			-background	=> 'white',
+			-ontick		=> sub { print $_[0]->{datetime}, "\n"; },
+		)->pack(
+			-anchor	=> 'w',
+			-expand	=> 1,
+			-fill	=> 'y',
+		);
+
+		# take the first argument if its there.
+		$dt->configure( -format	=> shift(@args),) if (@args);
+
+		###############################################
+		# the File menu button....
+		my $file = $bframe->Menubutton(
+			-text		=> 'File',
+			-tearoff	=> 0,
+			-border		=> 0,
+			-borderwidth	=> 0,
+		)->pack(
+			-side		=> 'left'
+		);
+		$file->configure(
+			-activebackground	=> $file->cget('-background'),
+		);
 
 
-	###############################################
-	# The Tk::StrfClock widgets.
-	my $upd = '';
-	my $adv = 0;
-	local ($_);
-	for (@args)
-	{
-		if (/%/)
+		# exit.
+		#$file->separator();
+		$file->command(
+			"-label"	=> 'Hide Buttons',
+			"-command"	=> sub { $bframe->packForget(); },
+		);
+		$file->command(
+			"-label"	=> 'Exit',
+			"-command"	=> sub { exit; },
+		);
+		###############################################
+
+		# the File menu button....
+		my $Format = $bframe->Menubutton(
+			-text		=> 'Format',
+			-tearoff	=> 0,
+			-border		=> 0,
+			-borderwidth	=> 0,
+		)->pack(
+			-side	=> 'left',
+		);
+		$Format->configure(
+			-activebackground	=> $Format->cget('-background'),
+		);
+
+		for my $format (@formats)
 		{
-			$cframe->StrfClock(
-				-format	=> $_,
-				-update	=> $upd,
-				-advance=> $adv,
-			)->pack(
-				-anchor	=> 'w',
-				-expand	=> 1,
-				-fill	=> 'y',
+			$Format->command(
+				"-label"	=> $format,
+				"-command"	=> [ sub { $_[0]->configure(-format => $_[1]); }, $dt, $format ],
 			);
 		}
-		elsif (/^[\+\-]\d+$/)	{ $adv = $_; }
-		else 			{ $upd = $_; }
+
+
+		###############################################
+		# The Tk::StrfClock widgets.
+		my $upd = '';
+		my $adv = 0;
+		local ($_);
+		for (@args)
+		{
+			if (/%/)
+			{
+				$cframe->StrfClock(
+					-format	=> $_,
+					-update	=> $upd,
+					-advance=> $adv,
+				)->pack(
+					-anchor	=> 'w',
+					-expand	=> 1,
+					-fill	=> 'y',
+				);
+			}
+			elsif (/^[\+\-]\d+$/)	{ $adv = $_; }
+			else 			{ $upd = $_; }
+		}
+	}
+
+	###################################################
+	# Menubutton
+	#if (0)
+	{
+		# primary StrfClock widget.
+		my $dt = $top->StrfClock(
+			-foreground	=> 'blue',
+			-background	=> 'white',
+			-activeforeground => 'red',
+			#-ontick		=> sub { print $_[0]->{datetime}, "\n"; },
+			-type		=> 'Menubutton',
+			-action		=> 's/AM/am/',
+
+			# Menubutton
+			-tearoff	=> 0,
+			-border		=> 0,
+			-borderwidth	=> 0,
+		)->pack(
+			-anchor	=> 'w',
+			-expand	=> 1,
+			-fill	=> 'y',
+		);
+
+		# take the first argument if its there.
+		$dt->configure( -format	=> shift(@args),) if (@args);
+
+		###############################################
+
+		# the menu items.
+		$dt->title('Formats');
+		for my $format (@formats)
+		{
+			$dt->command(
+				"-label"	=> $format,
+				"-command"	=> [ sub { $_[0]->configure(-format => $_[1]); }, $dt, $format ],
+			);
+		}
+
+		$dt->separator();
+		$dt->command(
+				"-label"	=> 'tick print on',
+				"-command"	=> [ sub { 
+			(shift)->configure(-ontick=> sub { print $_[0]->{datetime}, "\n"; });
+				}, $dt ],
+		);
+		$dt->command(
+				"-label"	=> 'tick print off',
+				"-command"	=> [ sub { 
+			(shift)->configure(-ontick=>undef);
+				}, $dt ],
+		);
+		$dt->command(
+				"-label"	=> 'Exit',
+				"-command"	=> [ sub { exit; } ],
+		);
+	}
+	
+	###################################################
+	# Optionmenu
+	if (0)
+	{
+		# primary StrfClock widget.
+		my $dt = $top->StrfClock(
+			-foreground	=> 'green',
+			-background	=> 'white',
+			-activeforeground => 'red',
+			-ontick		=> sub { print $_[0]->{datetime}, "\n"; },
+			-type		=> 'Optionmenu',
+
+			# base widget
+			-border		=> 0,
+			-borderwidth	=> 0,
+		)->pack(
+			-anchor	=> 'w',
+			-expand	=> 1,
+			-fill	=> 'y',
+		);
+
+		# take the first argument if its there.
+		$dt->configure( -format	=> shift(@args),) if (@args);
+
+		###############################################
+
+		# the menu items.
+		$dt->title('Formats');
+		for my $format (@formats)
+		{
+			$dt->command(
+				"-label"	=> $format,
+				"-command"	=> [ sub { $_[0]->configure(-format => $_[1]); }, $dt, $format ],
+			);
+		}
+
+		$dt->separator();
+		$dt->command(
+				"-label"	=> 'Exit',
+				"-command"	=> [ sub { exit; } ],
+		);
+	}
+	
+	###################################################
+	# Button
+	if (0)
+	{
+		# primary StrfClock widget.
+		my $dt = $top->StrfClock(
+			-type		=> 'Button',
+			-format		=> '%c',
+			-ontick		=> sub { print "Button: ", $_[0]->{datetime}, "\n"; },
+
+			# Button
+			-foreground	=> 'blue',
+			-background	=> 'white',
+			-border		=> 0,
+			-borderwidth	=> 0,
+			-command	=> [ sub { print "Button\n"; } ],
+		)->pack(
+			-anchor	=> 'w',
+			-expand	=> 1,
+			-fill	=> 'y',
+		);
+
 	}
 
 	MainLoop();
@@ -388,7 +671,7 @@ sub test
 	exit;
 }
 
-# If we are running this file then run the test function....
+;# If we are running this file then run the test function....
 &test(@ARGV) if ($0 eq __FILE__);
 
 1;
@@ -404,22 +687,34 @@ Tk::StrfClock - a X/TK digital clock widget based on strftime.
   use Tk::StrfClock;
 
   $top->StrfClock(
+	-type	=> [Label|Button|Menubutton|Optionmenu],
   	-format	=> <strftime format string>,
 	-update => [<seconds>|s|m|h|d],
 	-advance => [<seconds>],
+	-action	=> <pattern matching action>,
+	-ontick	=> <function>,
   );
 
 =head1 DESCRIPTION 
 
-Tk::StrfClock is a digital clock widget, with all the other attributes
-of a Tk::Label.
+Tk::StrfClock is a string clock widget based on one of
+a Tk::Label, a Tk::Button, a Tk::Menubutton or a Tk::Optionmenu
+(chosen at creation time). The current date and time (in some chosen
+configuration) is displayed as the text in the base widget.
 
 =head1 OPTIONS
+
+All the base widget options are available.
+
+=head2 -type => [Label|Button|Menubutton|Optionmenu],
+
+        Setthe base widget type at creation time. This cannot be
+        configured thereafter.  The default is Tk::Label.
 
 =head2 -format => <strftime format string>
 
 	Sets the required date/time format using POSIX strftime format.
-	The default is "%I:%M:%S%p, %A, %e %B %Y.".
+	The default is "%c".
 
 =head2 -update => <seconds>|s|m|h|d|a
 
@@ -434,7 +729,15 @@ of a Tk::Label.
 	Sets the clock fast or slow this many seconds. The default is
 	0.
 
-=head2 Other Tk::Label options.
+=head2 -action => <pattern matching action>
+
+        Sets a pattern matching action to be applied to the date string
+        before it is displayed. The default is to do nothing.
+
+=head2 -ontick => <function>
+
+        Set a function to be run every tick of the clock. The default is
+        none.
 
 =over 3
 

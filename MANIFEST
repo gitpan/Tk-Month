@@ -5,3 +5,8 @@ Month.pm
 MANIFEST
 Makefile.PL
 README
+INSTALL
+t/demo
+t/strfclock.t
+t/month.t
+t/panel.t
