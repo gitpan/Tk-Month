@@ -26,7 +26,7 @@ use Tk::Label;
 
 use vars qw($VERSION @ISA);
 
-$VERSION	= '0.1';
+$VERSION	= '1.2';
 
 @ISA = qw (Tk::Derived Tk::Label);
 

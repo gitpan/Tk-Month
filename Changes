@@ -1,5 +1,10 @@
 Revision history for Perl extension Tk::Month
 
+1.2  24 May 2000
+	- modified the code to correctly declare the version numbers to CPAN.
+
+	- brought all the versions into line with Tk::Month package.
+
 1.1  24 April 2000
 	- Added a slightly different DoAfterIdle function to work with
 	  the newer Tk distributions.

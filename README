@@ -1,4 +1,4 @@
-Tk::Month VERSION 1.1 - Tk Calendar month by month browser.
+Tk::Month VERSION 1.2 - Tk Calendar month by month browser.
 
 DESCRIPTION
 Tk::Month
@@ -33,14 +33,18 @@ TEST
 As this is a Tk GUI module it is hard to test non-interactively.
 Try
 	perl Month.pm
+	perl StrfClock.pm
+	perl Panel.pm
 
-There is a builtin test procedure which is run if and only if
-the module itself is run.
+There is a built-in test procedure which is run if and only if
+the module itself is run. In the case of Month.pm and StrfClock.pm
+the built-in is actually useful.
 
-There is also a demonstration in 'demo'.
+There is also a demonstration in 'demo'. Run after doing a make.
 
 TODO
 Nothing planned.
 
+SUGGESTIONS
 Send suggestions, bugs, etc. to arif@compusnet.com.
 

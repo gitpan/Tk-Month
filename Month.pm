@@ -18,7 +18,7 @@ use 5;
 
 package Tk::Month;
 
-BEGIN { $Tk::Month::VERSION = '1.1'; }
+$VERSION = '1.2';
 
 use strict;
 use vars qw(
