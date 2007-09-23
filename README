@@ -1,9 +1,12 @@
-Tk::Month VERSION 1.3 - Tk Calendar month by month browser.
+Tk::Month VERSION 1.5 - Tk Calendar month by month browser.
 
 DESCRIPTION
 Tk::Month
 	is a Tk month browser widget, allowing days, weeks etc. to
 	be selected for some externally defined action.
+
+Tk::Year
+	is a Tk year browser widget using Tk::Month widgets.
 
 Tk::Panel
 	a collapsible Frame-like widget with a title.
@@ -12,7 +15,7 @@ Tk::StrfClock
 	a digital clock based on strftime.
 
 COPYRIGHT
-Copyright (c) 1998-2002 Anthony Iano-Fletcher. All rights reserved.
+Copyright (c) 1998-2007 Anthony Fletcher. All rights reserved.
 These modules are free software; you can redistribute them and/or modify
 them under the same terms as Perl itself.
 
@@ -33,6 +36,7 @@ TEST
 As this is a Tk GUI module it is hard to test non-interactively.
 Try
 	perl Month.pm
+	perl Year.pm
 	perl StrfClock.pm
 	perl Panel.pm
 
@@ -40,11 +44,14 @@ There is a built-in test procedure which is run if and only if
 the module itself is run. In the case of Month.pm and StrfClock.pm
 the built-in is actually useful.
 
+You can also pass widget flags from the command line:
+	./Year.pm -fg grey -bg darkblue -font fixed
+
 There is also a demonstration in './t/demo'. Run after doing a make.
 
 TODO
 Nothing planned.
 
 SUGGESTIONS
-Send suggestions, bugs, etc. to Anthony+perl@Iano-Fletcher.org.
+Send suggestions, bugs, etc. to Anthony+perl@bifb.org.
 

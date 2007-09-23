@@ -2,25 +2,25 @@
 
 ;#                                                               
 ;# COPYRIGHT
-;# Copyright (c) 1998-2002 Anthony R Iano-Fletcher.  All rights
+;# Copyright (c) 1998-2007 Anthony R Fletcher.  All rights
 ;# reserved.  This module is free software; you can redistribute it
 ;# and/or modify it under the same terms as Perl itself.
 ;#
 ;# Please retain my name on any bits taken from this code.  This code is
 ;# supplied as-is - use at your own risk.
 ;#
-;#                      AR Iano-Fletcher.
+;#                      AR Fletcher.
 
-# This is a X/TK digital clock widget based on strftime.
-
-BEGIN { $^W = 1; }
+;# This is a X/TK digital clock widget based on strftime.
 
 package Tk::StrfClock;
 
-require 5.001;
 require Exporter;
 
+use 5;
 use strict;
+use warnings;
+
 use Carp;
 use POSIX;
 use Tk;
@@ -29,8 +29,9 @@ use Tk::Button;
 use Tk::Menubutton;
 use Tk::Optionmenu;
 
-
 use vars qw($VERSION @ISA $AUTOLOAD %flags);
+
+our @EXPORT = qw(StrfClock);
 
 $VERSION	= '1.4';
 
@@ -49,6 +50,7 @@ Construct Tk::Widget 'StrfClock';
 );
 
 sub debug {};
+;#sub debug { print STDERR @_; };
 
 ;# Create the widget.
 sub new
@@ -371,7 +373,7 @@ sub AUTOLOAD
 	debug "args: @_\n";
 	debug "\$AUTOLOAD=$AUTOLOAD\n";
 
-	my $self = shift;
+	my $self = shift || '';
 	croak "$AUTOLOAD: '$self' is not an object!\n" unless ref($self);
 
 	# What are we trying to do?
@@ -383,7 +385,7 @@ sub AUTOLOAD
 }
 
 ;# Demonstration application.
-sub test
+sub StrfClock
 {
 	debug __PACKAGE__ . " version $VERSION\n";
 
@@ -671,8 +673,8 @@ sub test
 	exit;
 }
 
-;# If we are running this file then run the test function....
-&test(@ARGV) if ($0 eq __FILE__);
+;# If we are running this file then run the main function....
+&StrfClock(@ARGV) if ($0 eq __FILE__);
 
 1;
 

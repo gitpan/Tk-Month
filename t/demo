@@ -12,6 +12,7 @@ use Tk;
 use Tk::Panel;
 use Tk::StrfClock;
 use Tk::Month;
+use Tk::Year;
 
 $top=MainWindow->new();
 $frame=$top->Frame()->pack(-expand=>1, -fill=>'x');
@@ -30,6 +31,13 @@ $m = $f->StrfClock()->pack();
 # Month based calender in a panel with title.
 $f = $top->Panel(-text=>'Tk::Month')->pack(-anchor=>'nw');
 $m = $f->Month()->pack();
+
+# Year based calender in a panel with title.
+$f = $top->Panel(
+	-text=>'Tk::Year',
+	-show	=> 0,
+)->pack(-anchor=>'nw', -expand=>1, -fill=>'both');
+$m = $f->Year()->pack();
 
 # Run.
 MainLoop;

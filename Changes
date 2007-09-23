@@ -1,5 +1,10 @@
 Revision history for Perl extension Tk::Month
 
+1.5 Jan 2003
+	- added Tk::Year widget.
+
+	- modified Tk::Month to work support Tk::Year.
+
 1.4  15 Nov 2002
 	- rewrote StrfClock completely to allow for different base
 	  widgets. Added -ontick and -action flags.

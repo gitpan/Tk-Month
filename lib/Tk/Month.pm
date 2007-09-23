@@ -2,25 +2,24 @@
 
 ;#                                                               
 ;# COPYRIGHT
-;# Copyright (c) 1998-2000 Anthony R Iano-Fletcher.  All rights reserved.  This
+;# Copyright (c) 1998-2007 Anthony R Fletcher.  All rights reserved.  This
 ;# module is free software; you can redistribute it and/or modify it
 ;# under the same terms as Perl itself.
 ;#
 ;# Please retain my name on any bits taken from this code.
 ;# This code is supplied as-is - use at your own risk.
 ;#                                                               
-;#			AR Iano-Fletcher.
+;#			AR Fletcher.
 
 ;# This is a Tk month browser.
 ;# Place into Tk/Month.pm somewhere in your perl-lib path.
 
-BEGIN { $^W = 1; }
-
 use 5;
+use warnings;
 
 package Tk::Month;
 
-$VERSION = '1.4';
+$VERSION = '1.5';
 
 use strict;
 use vars qw(
@@ -37,6 +36,7 @@ use Tk;
 use Tk::Widget;
 
 @Tk::Month::ISA = qw ( Tk::Frame Tk::Derived);
+our @EXPORTS = qw(TkMonth);
 
 Construct Tk::Widget 'Month';
 
@@ -70,11 +70,13 @@ sub Populate
 		'-month'	=> ['PASSIVE',undef,undef, ''],
 		'-year'		=> ['PASSIVE',undef,undef, ''],
 		'-command'	=> ['PASSIVE',undef,undef, \&defaultAction],
+		'-press'	=> '-command',
 		'-printformat'	=> ['PASSIVE',undef,undef, '%e %B %Y'],
 		'-title'	=> ['PASSIVE',undef,undef, '%B %Y'],
 		'-update'	=> ['PASSIVE',undef,undef, 0],
 		#'-printcommand'	=> ['PASSIVE',undef,undef, \&defaultPrint],
 		'-navigation'	=> ['PASSIVE',undef,undef, 1],
+		'-side'		=> ['PASSIVE',undef,undef, 1],
 		#'-close'	=> ['PASSIVE',undef,undef, $self],
 
 		# configurable from Xdefaults file.
@@ -169,11 +171,13 @@ sub make
 	{
 		$self->{week}->{$c} = $self->{'button'}->{1}->{$c};
 	}
+
 	# side buttons.
-	for (my $r=1; $r<8; $r++)
-	{
-		$self->{side}->{$r} = $self->{'button'}->{$r}->{0};
-	}
+	#for (my $r=1; $r<8; $r++)
+	#{
+		#$self->{side}->{$r} = $self->{'button'}->{$r}->{0};
+	#}
+
 	# date buttons.
 	for (my $c=1; $c<$#week+2; $c++)
 	{
@@ -184,8 +188,50 @@ sub make
 		}
 	}
 
-
 	$self;
+}
+
+;# Toggle the side buttons on the left side
+sub side
+{
+	debug "args: @_\n";
+
+	my $self = shift;
+
+	my $navigation = $self->{side};
+	my $width = 2;
+
+	# Don't do anything if there is really nothing to do.
+	return if (
+		exists($self->{sideState}) &&
+		$self->cget('-side') eq $self->{sideState}
+	);
+	$self->{sideState} = $self->cget('-side');
+
+	# Positions (0,0), (1,0), (2,0),..., (5,0) are the
+	# the side buttons.
+
+	# side buttons.
+	if ($self->cget('-side'))
+	{
+		debug "creating side buttons.\n";
+		for (my $r=1; $r<8; $r++)
+		{
+			$self->{side}->{$r} = $self->{'button'}->{$r}->{0};
+		}
+	}
+	else
+	{
+		debug "removing side buttons.\n";
+
+		# remove the side buttons.
+		for (my $r=1; $r<8; $r++)
+		{
+			next unless (exists($self->{'button'}->{$r}->{0}));
+			$self->{'button'}->{$r}->{0}->destroy();
+			delete($self->{'button'}->{$r}->{0});
+		}
+	}
 }
 
 ;# Toggle the navigation buttons in the navigation frame.
@@ -415,6 +461,7 @@ sub refresh
 
 	##### Deal with navigation first.... ####
 	$self->navigate();
+	$self->side();
 
 	############ Refresh the widget. ###################
 
@@ -461,6 +508,8 @@ sub refresh
 	debug "extra config = (@config)\n";
 
 	# configure the top left button.
+	if (Exists($self->{'button'}->{1}->{0}))
+	{
 	$self->{'button'}->{1}->{0}->configure(
 		'-text'		=> '?',
 		'-command'	=> [ $command, $title, ( [ POSIX::strftime($printformat, localtime()) ] ) ],
@@ -468,6 +517,7 @@ sub refresh
 		'-bg'		=> $bg,
 		@config,
 	);
+	}
 
 	# length of the week.
 	my $weeklen = $#week + 1;
@@ -548,6 +598,8 @@ sub refresh
 		my $button	= $self->{side}->{$r+2};
 		my @dates	= @{ $when[$r] ? $when[$r] : [] };
 
+		next unless Exists($button);
+
 		# this debug causes uninitialised warnings....
 		#debug "Week position ($r, 0) => (@dates)\n";
 
@@ -575,13 +627,27 @@ sub refresh
 
 	########### overload botton-right button. ################
 	my $button	= $self->{'date'}->{7}->{7};
-	$button->configure(
-		'-command'	=> [ $command, $title, @when ],
-		'-text'		=> 'A',
-		'-fg'		=> $fg,
-		'-bg'		=> $bg,
-		@config,
-	);
+	if ($self->cget('-side'))
+	{
+		$button->configure(
+			'-command'	=> [ $command, $title, @when ],
+			'-text'		=> 'A',
+			'-fg'		=> $fg,
+			'-bg'		=> $bg,
+			@config,
+		);
+	}
+	else
+	{
+		$button->configure(
+			'-command'	=> undef,
+			'-text'		=> '',
+			'-fg'		=> $fg,
+			'-bg'		=> $bg,
+			@config,
+		);
+	}
+
 
 	debug "done\n";
 }
@@ -982,17 +1048,13 @@ sub separator
 
 ;#################################################################
 ;# A default startup routine.
-sub test
+sub TkMonth
 {
-	# do some remedial argument parsing.
-	my $quick = 0;
-	while (@ARGV)
-	{
-		$_ = shift(@ARGV);
-
-		if ($_ eq '-d')
-		{
-			# set up debugging...
+	# only use this when testing.
+	eval 'use Getopt::Long;';
+	Getopt::Long::Configure("pass_through");
+	GetOptions(
+		'd'	=> sub { 
 			eval '	sub debug {
 				my ($package, $filename, $line,
 					$subroutine, $hasargs, $wantargs) = caller(1);
@@ -1004,16 +1066,8 @@ sub test
 				else    {print "Debug $filename line $line.\n";}
 			};
 			';
-		}
-		elsif (/^-/)
-		{
-			warn "Unknown option: '$_'.\n";
-		}
-		else
-		{
-			last;
-		}
-	}
+		},
+	);
 
 	my ($month, $year) = (localtime(time))[4,5];
 	$year += 1900;
@@ -1046,6 +1100,8 @@ sub test
 		'-month'	=> $month,
 		'-year'		=> $year,
 	)->pack();
+
+	$a->configure(@_) if @_;
 
 	$a->separator();
 	$a->command(
@@ -1086,6 +1142,14 @@ sub test
 		);
 	}
 
+	for my $i ( qw(on off) )
+	{
+		$m->command(
+			-label		=> "Side $i",
+			-command	=> sub { $a->configure(-side => ($i eq 'on' ? 1 : 0)); },
+		);
+	}
+
 	$m->separator();
 	$m->command(
 		-label		=> 'Exit',
@@ -1094,11 +1158,10 @@ sub test
 
 	MainLoop();
 
-	die "Shouldnt get here!\n";
 }
 
 # If we are running this file then run the test function....
-&test if ($0 eq __FILE__);
+&TkMonth if ($0 eq __FILE__);
 
 1;
 
@@ -1222,6 +1285,11 @@ user defined button actions.
 
 	Sets whether the navigation buttons and menu are included.
 	The default is to show the naviagation aids.
+
+=head2 -side	=> [0|1],
+
+	Sets whether the side buttons are included.
+	The default is to show the side button aids.
 
 =over 3
 

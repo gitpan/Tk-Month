@@ -2,14 +2,14 @@
 
 ;#                                                               
 ;# COPYRIGHT
-;# Copyright (c) 1998-2000 Anthony R Iano-Fletcher.  All rights reserved.  This
+;# Copyright (c) 1998-2007 Anthony R Fletcher.  All rights reserved.  This
 ;# module is free software; you can redistribute it and/or modify it
 ;# under the same terms as Perl itself.
 ;#
 ;# Please retain my name on any bits taken from this code.
 ;# This code is supplied as-is - use at your own risk.
 ;#                                                               
-;#			AR Iano-Fletcher.
+;#			AR Fletcher.
 
 ;# This is a panel widget - basically a frame with a groove
 ;# or a ridge around it and a label sitting on the boundary
