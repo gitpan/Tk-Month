@@ -1,36 +1,32 @@
 # -*- perl -*-
 
+# Test script for the Tk Tk::Month widget.
 
-BEGIN { $^W = 1; $|  = 1; }
-END { $::loaded || print "not ok 1\n"; }
-
-print "1..2\n";
-
-use Tk;
-use Tk::Month;
+use 5;
+use warnings;
 use strict;
 
-$::loaded = 1;
-print "ok 1\n";
+use Test::More tests => 3;
 
+BEGIN { use_ok( 'Tk' ); }
+BEGIN { use_ok( 'Tk::Month' ); }
 
 my $delay  = 0;
 my $period = 5000;
 
-print "2..2\n";
+SKIP: {
+	skip "no X11 display variable set", 1 unless (exists $ENV{'DISPLAY'});
 
-# Test script for the Tk Tk::Month widget.
+	my $top=MainWindow->new();
+	my $f = $top->Frame()->pack();
+	my $m = $f->Button(
+		-text		=> 'Exit',
+		-command	=> sub { exit; },
+	)->pack();
+	my $a = $top->Month()->pack();
 
-my $top=MainWindow->new();
-my $f = $top->Frame()->pack();
-my $m = $f->Button(
-	-text		=> 'Exit',
-	-command	=> sub { exit; },
-)->pack();
-my $a = $top->Month()->pack();
-
-#Tk::Month::test;
-print "ok 2\n";
+	ok($a, 'Create an object and pack it');
+}
 
 #MainLoop;
 

@@ -19,7 +19,7 @@ use warnings;
 
 package Tk::Month;
 
-$VERSION = '1.5';
+$VERSION = '1.6';
 
 use strict;
 use vars qw(

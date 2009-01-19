@@ -1,28 +1,28 @@
 # -*- perl -*-
 
 
-BEGIN { $^W = 1; $|  = 1; }
-END { $::loaded || print "not ok 1\n"; }
-
-print "1..2\n";
-
-use Tk;
-use Tk::Panel;
+use 5;
 use strict;
+use warnings;
 
-$::loaded = 1;
-print "ok 1\n";
+use Test::More tests => 3;
 
-print "2..2\n";
+BEGIN { use_ok( 'Tk' ); }
+BEGIN { use_ok( 'Tk::Panel' ); }
 
-my $top=MainWindow->new();
-my $f = $top->Panel()->pack();
-my $m = $f->Button(
-	-text		=> 'Exit',
-	-command	=> sub { exit; },
-)->pack();
+SKIP: {
+	skip "No X11 display set", 1
+		unless exists $ENV{DISPLAY};
 
-print "ok 2\n";
+	my $top=MainWindow->new();
+	my $f = $top->Panel()->pack();
+	my $m = $f->Button(
+		-text		=> 'Exit',
+		-command	=> sub { exit; },
+	)->pack();
+	
+	ok($f, "Created and packed a Panel object");
+}
 
 #MainLoop;
 

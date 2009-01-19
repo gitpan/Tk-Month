@@ -1,30 +1,30 @@
 # -*- perl -*-
 
 
-BEGIN { $^W = 1; $|  = 1; }
-END { $::loaded || print "not ok 1\n"; }
-
-print "1..2\n";
-
-use Tk;
-use Tk::StrfClock;
+use 5;
 use strict;
+use warnings;
 
-$::loaded = 1;
-print "ok 1\n";
+use Test::More tests => 3;
 
+BEGIN { use_ok( 'Tk' ); }
+BEGIN { use_ok( 'Tk::StrfClock' ); }
 
-print "2..2\n";
+SKIP: {
+	skip "No X11 display set", 1
+		unless exists $ENV{DISPLAY};
 
-my $top=MainWindow->new();
-my $f = $top->Frame()->pack();
-my $m = $f->Button(
-	-text		=> 'Exit',
-	-command	=> sub { exit; },
-)->pack();
-my $a = $top->StrfClock()->pack();
+	my $top=MainWindow->new();
+	my $f = $top->Frame()->pack();
+	my $m = $f->Button(
+		-text		=> 'Exit',
+		-command	=> sub { exit; },
+	)->pack();
+	my $a = $top->StrfClock()->pack();
 
-print "ok 2\n";
+	ok($a, "Created and packed StrfClock object.");
+
+}
 
 #MainLoop;
 

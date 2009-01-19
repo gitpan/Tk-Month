@@ -1,5 +1,9 @@
 Revision history for Perl extension Tk::Month
 
+1.6 Jan 2009
+	- modified tests to skip parts if there is no X11 display
+	  available.
+
 1.5 Jan 2003
 	- added Tk::Year widget.
 
