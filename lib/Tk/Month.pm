@@ -19,7 +19,7 @@ use warnings;
 
 package Tk::Month;
 
-$VERSION = '1.6';
+$VERSION = '1.7';
 
 use strict;
 use vars qw(
@@ -72,6 +72,7 @@ sub Populate
 		'-command'	=> ['PASSIVE',undef,undef, \&defaultAction],
 		'-press'	=> '-command',
 		'-printformat'	=> ['PASSIVE',undef,undef, '%e %B %Y'],
+		'-dayformat'	=> ['PASSIVE',undef,undef, '%e'],
 		'-title'	=> ['PASSIVE',undef,undef, '%B %Y'],
 		'-update'	=> ['PASSIVE',undef,undef, 0],
 		#'-printcommand'	=> ['PASSIVE',undef,undef, \&defaultPrint],
@@ -445,6 +446,7 @@ sub refresh
 	my $command	= $self->cget('-command');
 	my $title	= $self->cget('-title');
 	my $printformat	= $self->cget('-printformat');
+	my $dayformat	= $self->cget('-dayformat');
 	my $first	= $self->cget('-first');
 
 	debug "refresh: month is $month and year is $year.\n";
@@ -546,7 +548,7 @@ sub refresh
 			debug "including $when.\n";
 		}
 		
-		my $thisdate = $lt[3];
+		my $thisdate = POSIX::strftime($dayformat, @lt);
 		$thisdate = '' unless ($self->cget('-showall') || ($lt[4] == $month));
 
 		my $button = $self->{'date'}->{$row+2}->{$col+1};
@@ -1096,9 +1098,11 @@ sub TkMonth
 
 	my $a = $top->Month(
 		'-printformat'	=> '%a %e',
+		#'-dayformat'	=> '%j',
 		'-includeall'	=> 0,
 		'-month'	=> $month,
 		'-year'		=> $year,
+	@ARGV,
 	)->pack();
 
 	$a->configure(@_) if @_;
@@ -1150,6 +1154,14 @@ sub TkMonth
 		);
 	}
 
+	for my $i ( qw(%e %d %j) )
+	{
+		$m->command(
+			-label		=> "Day format $i",
+			-command	=> sub { $a->configure(-dayformat => $i); },
+		);
+	}
+
 	$m->separator();
 	$m->command(
 		-label		=> 'Exit',
@@ -1181,7 +1193,7 @@ Tk::Month - Calendar widget which shows one month at a time.
 		-year		=> '1997',
 		-title		=> '%b %y',
 		-command	=> \&press,
-		-printformat	=> '%e',
+		-printformat=> '%e',
 		-navigation	=> [0|1],
 		-includeall	=> [0|1],
 		-showall	=> [0|1],
@@ -1192,7 +1204,7 @@ Tk::Month - Calendar widget which shows one month at a time.
 		-month		=> 'July',
 		-year		=> '1997',
 		-command	=> \&press,
-		-printformat	=> '%e %B %Y %A',
+		-printformat=> '%e %B %Y %A',
 		-navigation	=> [0|1],
 		-includeall	=> [0|1],
 		-showall	=> [0|1],
@@ -1256,6 +1268,11 @@ user defined button actions.
 	Set the default format for dates when they are passed in an
 	array of arrays to the -command function.
 	The default is '%e %B %Y'.
+
+=head2 -dayformat	=> "strftime format"
+
+	Set the default format for the days within the widget.
+	The default is '%e', i.e. the date of each day.
 
 =head2 DISCONTINUED -printcommand	=> \&print
 

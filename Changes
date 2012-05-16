@@ -1,5 +1,9 @@
 Revision history for Perl extension Tk::Month
 
+1.7 May 2012
+	- added a format specification for each individual day in
+	  Tk::Month widget. The default is still %e.
+
 1.6 Jan 2009
 	- modified tests to skip parts if there is no X11 display
 	  available.
