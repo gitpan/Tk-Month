@@ -1,5 +1,11 @@
 Revision history for Perl extension Tk::Month
 
+1.8 Jan 2014
+        - switched from %e to %d as default because %e is not
+          portable. Thanks to Alex Becker
+	- Extended POD and Makefile.  Thanks to Alex Becker
+	- Fixed a bug in Panel.pm
+
 1.7 May 2012
 	- added a format specification for each individual day in
 	  Tk::Month widget. The default is still %e.

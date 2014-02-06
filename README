@@ -15,7 +15,7 @@ Tk::StrfClock
 	a digital clock based on strftime.
 
 COPYRIGHT
-Copyright (c) 1998-2007 Anthony Fletcher. All rights reserved.
+Copyright (c) 1998-2014 Anthony R Fletcher. All rights reserved.
 These modules are free software; you can redistribute them and/or modify
 them under the same terms as Perl itself.
 
@@ -32,20 +32,21 @@ make
 make test
 make install
 
-TEST
+TESTING
 As this is a Tk GUI module it is hard to test non-interactively.
 Try
-	perl Month.pm
-	perl Year.pm
-	perl StrfClock.pm
-	perl Panel.pm
+	perl lib/Tk/Month.pm
+	perl lib/Tk/Year.pm
+	perl lib/Tk/StrfClock.pm
+	perl lib/Tk/Panel.pm
+	perl t/demo
 
 There is a built-in test procedure which is run if and only if
 the module itself is run. In the case of Month.pm and StrfClock.pm
 the built-in is actually useful.
 
 You can also pass widget flags from the command line:
-	./Year.pm -fg grey -bg darkblue -font fixed
+	./lib/Tk/Year.pm -fg grey -bg darkblue -font fixed
 
 There is also a demonstration in './t/demo'. Run after doing a make.
 

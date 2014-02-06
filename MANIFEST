@@ -14,4 +14,5 @@ t/strfclock.t
 t/month.t
 t/year.t
 t/panel.t
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)

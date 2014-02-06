@@ -1,48 +1,34 @@
 #! /usr/bin/env perl
 
-;#                                                               
-;# COPYRIGHT
-;# Copyright (c) 1998-2007 Anthony R Fletcher.  All rights reserved.  This
-;# module is free software; you can redistribute it and/or modify it
-;# under the same terms as Perl itself.
-;#
-;# Please retain my name on any bits taken from this code.
-;# This code is supplied as-is - use at your own risk.
-;#                                                               
-;#			AR Fletcher.
-
-;# This is a panel widget - basically a frame with a groove
-;# or a ridge around it and a label sitting on the boundary
-;# and lots of space.
-
-BEGIN { $^W = 1; }	# warnings on.
-
 package Tk::Panel;
 
+use 5.014000;
+use warnings;
 use strict;
+
 use vars qw(@ISA $VERSION);
 
 use Tk;
 use Carp;
 require Tk::Widget;
 
-Construct Tk::Widget 'Panel';
+our $VERSION = '1.5';
 
-$VERSION = '1.4';
-@ISA = qw ( Tk::Derived Tk::Frame);
+Construct Tk::Widget 'Panel';
+use base qw(Tk::Derived Tk::Frame);
 
 sub debug {};
 
-;# Class initialisation function.
-;# Called exactly once for each MainWindow widget tree, just
-;# before the first widget is created.
+# Class initialisation function.
+# Called exactly once for each MainWindow widget tree, just
+# before the first widget is created.
 sub ClassInit
 {
 	debug "args: @_\n";
 	# nothing.
 }
 
-;## Constructor.  Uses new inherited from base class
+# Constructor.  Uses new inherited from base class
 sub Populate
 {
 	debug "args: @_\n";
@@ -235,7 +221,7 @@ sub test
 		-expand=>'yes', -fill=>'x',
 	);
 
-	my @pack = (side=>'left');
+	my @pack = ('-side'=>'left');
 	$top->after(10000, [ 'configure', $g, '-margin' => 20 ]);
 	$top->after(20000, [ 'configure', $g, '-text' => 'Top panel' ]);
 
@@ -277,7 +263,7 @@ sub test
 	)->pack();
 
 	$b = $h->Button(
-		text => "double border",
+		-text => "double border",
 		-command => sub { $h->configure('-border'=>$h->cget('-border')*2); },
 	)->pack();
 
@@ -330,53 +316,68 @@ Tk::Panel - A collapsable frame with title.
   use Tk::Panel;
 
   $m = $parent->Panel(
-		-relief	=> <relief of inner boundary>,
-		-border	=> <border size of inner boundary>
-		-text	=> <text of title>
-		-toggle	=> <0|1>
-		-state	=> <normal|active|disabled>
-		-show	=> 1|0
-  	);
+  	-relief	=> <relief of inner boundary>,
+  	-border	=> <border size of inner boundary>
+  	-text	=> <text of title>
+  	-toggle	=> <0|1>
+  	-state	=> <normal|active|disabled>
+  	-show	=> 1|0
+  );
 
-   $m->Widget()->pack();
+  $m->Widget()->pack();
 
 =head1 DESCRIPTION 
 
-	This is a frame type object with a boundary and a title.
-	The title can include a checkbox allowing the contents of
-	the panel to be collapsed.
+This is a frame type object with a boundary and a title.
+The title can include a checkbox allowing the contents of
+the panel to be collapsed.
 
-	Further widgets can be created inside the Panel.
+Further widgets can be created inside the Panel.
 
 =head1 OPTIONS
 
 =head2 -relief => <relief of inner boundary>
 
-        Sets the relief of inner boundary. The default is 'raised'.
+Sets the relief of inner boundary. The default is C<raised>.
 
 =head2 -border => <border size of inner boundary>
 
-        Sets the relief of inner boundary.
+Sets the relief of inner boundary.
 
 =head2 -text => "title text"
 
-        Sets the title of the Panel.
+Sets the title of the Panel.
 
 =head2 -toggle => 1|0
 
-        This sets if the Panel can be collapsed via the title.
+This sets if the Panel can be collapsed via the title.
 
 =head2 -state => <normal|active|disabled>
 
-	This sets the state of the check button version of the title.
+This sets the state of the check button version of the title.
 
 =head2 -show => 1|0
 
-	This sets if the Panel is expanded or collapsed.
+This sets if the Panel is expanded or collapsed.
 
-=over 3
+=head1 SEE ALSO
 
-=back 
+See L<Tk> for Perl/Tk documentation.
+
+=head1 AUTHOR
+
+Anthony R Fletcher, E<lt>a r i f 'a-t' c p a n . o r gE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 1998-2014 by Anthony R Fletcher.
+All rights reserved.
+Please retain my name on any bits taken from this code.
+This code is supplied as-is - use at your own risk.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.16.3 or,
+at your option, any later version of Perl 5 you may have available.
 
 =cut
 

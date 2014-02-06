@@ -16,15 +16,11 @@
 
 use 5;
 use warnings;
+use strict;
 
 package Tk::Year;
 
-$VERSION = '1.0';
-
-use strict;
-use vars qw(
-	$VERSION
-);
+our $VERSION = '1.1';
 
 use Carp;
 use POSIX;
@@ -34,7 +30,7 @@ use Tk;
 use Tk::Widget;
 use Tk::Month;
 
-@Tk::Year::ISA = qw ( Tk::Frame Tk::Derived);
+use base qw(Tk::Derived Tk::Frame);
 
 Construct Tk::Widget 'Year';
 
@@ -449,12 +445,12 @@ Tk::Year is a general purpose calendar widget
 which shows one year at a time and allowes
 user defined button actions.
 
-=head1 FUNCTIONS
+=head1 METHODS
 
 =head2 $m->advance(<number-of-years>);
 
-        This advances the year shown by the specified number of years;
-        negative numbers go backwards.
+This advances the year shown by the specified number of years;
+negative numbers go backwards.
 
 =over 3
 
@@ -467,15 +463,24 @@ actions can be applied to Tk::Year.
 
 =head2 -year => 'year'
 
-	Sets the required year. The default is the current year.
+Sets the required year. The default is the current year.
 
 =head2 -cols => 'columns'
 
-	Sets the number of columns used to display the year. The default is 3.
+Sets the number of columns used to display the year. The default is 3.
 
 =head2 -sep => 'sep'
 
-	Sets the separation between the columns of months. The default is 5 pixels.
+Sets the separation between the columns of months. The default is 5 pixels.
+
+=head2 -command => \&press
+
+Set the command to execute when a button is pressed.
+This function must accept a string
+(the title of the Month widget)
+and an array of arrays of dates.
+Each date is of the format specified by the -printformat option.
+The default is to print out the list on standard output.
 
 =head2 -first
 
@@ -491,20 +496,27 @@ actions can be applied to Tk::Year.
 
 =head2 -buttonrelief
 
-	These options apply to each of the Tk::Month widgets.
+These options apply to each of the L<Tk::Month> widgets.
+See L<Tk::Month> for details.
 
-=head2 -command => \&press
+=head1 SEE ALSO
 
-	Set the command to execute when a button is pressed.
-	This function must accept a string
-	(the title of the Month widget)
-	and an array of arrays of dates.
-	Each date is of the format specified by the -printformat option.
-	The default is to print out the list on standard output.
+See L<Tk> for Perl/Tk documentation.
 
-=over 3
+=head1 AUTHOR
 
-=back 
+Anthony R Fletcher, E<lt>a r i f 'a-t' c p a n . o r gE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 1998-2014 by Anthony R Fletcher.
+All rights reserved.
+Please retain my name on any bits taken from this code.
+This code is supplied as-is - use at your own risk.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.16.3 or,
+at your option, any later version of Perl 5 you may have available.
 
 =cut
 

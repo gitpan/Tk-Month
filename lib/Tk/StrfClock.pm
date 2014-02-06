@@ -1,18 +1,5 @@
 #! /usr/bin/env perl
 
-;#                                                               
-;# COPYRIGHT
-;# Copyright (c) 1998-2007 Anthony R Fletcher.  All rights
-;# reserved.  This module is free software; you can redistribute it
-;# and/or modify it under the same terms as Perl itself.
-;#
-;# Please retain my name on any bits taken from this code.  This code is
-;# supplied as-is - use at your own risk.
-;#
-;#                      AR Fletcher.
-
-;# This is a X/TK digital clock widget based on strftime.
-
 package Tk::StrfClock;
 
 require Exporter;
@@ -29,13 +16,12 @@ use Tk::Button;
 use Tk::Menubutton;
 use Tk::Optionmenu;
 
-use vars qw($VERSION @ISA $AUTOLOAD %flags);
+our $VERSION	= '1.5';
 
-our @EXPORT = qw(StrfClock);
-
-$VERSION	= '1.4';
+use vars qw(@ISA $AUTOLOAD %flags);
 
 @ISA	= qw (Exporter);
+our @EXPORT = qw(StrfClock);
 
 Construct Tk::Widget 'StrfClock';
 
@@ -710,40 +696,36 @@ All the base widget options are available.
 
 =head2 -type => [Label|Button|Menubutton|Optionmenu],
 
-        Setthe base widget type at creation time. This cannot be
-        configured thereafter.  The default is Tk::Label.
+Set the base widget type at creation time. This cannot be
+configured thereafter.  The default is Tk::Label.
 
 =head2 -format => <strftime format string>
 
-	Sets the required date/time format using POSIX strftime format.
-	The default is "%c".
+Sets the required date/time format using POSIX strftime format.
+The default is C<%c>.
 
 =head2 -update => <seconds>|s|m|h|d|a
 
-	Sets how often the clock is updated.  If set to the characters
-	s, m, h, d or a then the clock is updated exactly on the second,
-	minute, hour, day or is automatically guessed.
+Sets how often the clock is updated.  If set to the characters
+s, m, h, d or a then the clock is updated exactly on the second,
+minute, hour, day or is automatically guessed.
 
-	The default is 'a'.
+The default is C<a>.
 
 =head2 -advance => <seconds>
 
-	Sets the clock fast or slow this many seconds. The default is
-	0.
+Sets the clock fast or slow this many seconds. 
+The default is C<0>.
 
 =head2 -action => <pattern matching action>
 
-        Sets a pattern matching action to be applied to the date string
-        before it is displayed. The default is to do nothing.
+Sets a pattern matching action to be applied to the date string
+before it is displayed. The default is to do nothing.
 
 =head2 -ontick => <function>
 
-        Set a function to be run every tick of the clock. The default is
-        none.
-
-=over 3
-
-=back 
+Set a function to be run every tick of the clock. The default is
+none.
 
 =head1 MINIMAL EXAMPLE
 
@@ -756,8 +738,8 @@ All the base widget options are available.
 
 =head1 TESTING
 
- Run the module itself to start a test program.
- To increase the size of the fond add something like
+Run the module itself to start a test program.
+To increase the size of the fond add something like
 
 =over 3
 
@@ -765,7 +747,26 @@ All the base widget options are available.
 
 =back
 
- to your .Xdefaults file.
+to your .Xdefaults file.
+
+=head1 SEE ALSO
+
+See L<Tk> for Perl/Tk documentation.
+
+=head1 AUTHOR
+
+Anthony R Fletcher, E<lt>a r i f 'a-t' c p a n . o r gE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 1998-2014 by Anthony R Fletcher.
+All rights reserved.
+Please retain my name on any bits taken from this code.
+This code is supplied as-is - use at your own risk.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.16.3 or,
+at your option, any later version of Perl 5 you may have available.
 
 =cut
 

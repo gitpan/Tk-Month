@@ -1,27 +1,13 @@
 #! /usr/bin/env perl
 
-;#                                                               
-;# COPYRIGHT
-;# Copyright (c) 1998-2007 Anthony R Fletcher.  All rights reserved.  This
-;# module is free software; you can redistribute it and/or modify it
-;# under the same terms as Perl itself.
-;#
-;# Please retain my name on any bits taken from this code.
-;# This code is supplied as-is - use at your own risk.
-;#                                                               
-;#			AR Fletcher.
-
-;# This is a Tk month browser.
-;# Place into Tk/Month.pm somewhere in your perl-lib path.
-
-use 5;
+use 5.014000;
 use warnings;
+use strict;
 
 package Tk::Month;
 
-$VERSION = '1.7';
+our $VERSION = '1.8';
 
-use strict;
 use vars qw(
 	@year @Year %year %a2year
 	@week @Week %week %a2week
@@ -35,8 +21,7 @@ use Text::Abbrev;
 use Tk;
 use Tk::Widget;
 
-@Tk::Month::ISA = qw ( Tk::Frame Tk::Derived);
-our @EXPORTS = qw(TkMonth);
+use base qw/ Tk::Derived Tk::Frame /;
 
 Construct Tk::Widget 'Month';
 
@@ -71,8 +56,8 @@ sub Populate
 		'-year'		=> ['PASSIVE',undef,undef, ''],
 		'-command'	=> ['PASSIVE',undef,undef, \&defaultAction],
 		'-press'	=> '-command',
-		'-printformat'	=> ['PASSIVE',undef,undef, '%e %B %Y'],
-		'-dayformat'	=> ['PASSIVE',undef,undef, '%e'],
+		'-printformat'	=> ['PASSIVE',undef,undef, '%d %B %Y'],
+		'-dayformat'	=> ['PASSIVE',undef,undef, '%d'],
 		'-title'	=> ['PASSIVE',undef,undef, '%B %Y'],
 		'-update'	=> ['PASSIVE',undef,undef, 0],
 		#'-printcommand'	=> ['PASSIVE',undef,undef, \&defaultPrint],
@@ -1097,7 +1082,7 @@ sub TkMonth
 	# Tk::Month::setWeek( qw(Su M Tu W Th F Sa) );
 
 	my $a = $top->Month(
-		'-printformat'	=> '%a %e',
+		'-printformat'	=> '%a %d',
 		#'-dayformat'	=> '%j',
 		'-includeall'	=> 0,
 		'-month'	=> $month,
@@ -1193,7 +1178,7 @@ Tk::Month - Calendar widget which shows one month at a time.
 		-year		=> '1997',
 		-title		=> '%b %y',
 		-command	=> \&press,
-		-printformat=> '%e',
+		-printformat=> '%d',
 		-navigation	=> [0|1],
 		-includeall	=> [0|1],
 		-showall	=> [0|1],
@@ -1204,7 +1189,7 @@ Tk::Month - Calendar widget which shows one month at a time.
 		-month		=> 'July',
 		-year		=> '1997',
 		-command	=> \&press,
-		-printformat=> '%e %B %Y %A',
+		-printformat=> '%d %B %Y %A',
 		-navigation	=> [0|1],
 		-includeall	=> [0|1],
 		-showall	=> [0|1],
@@ -1219,21 +1204,21 @@ Tk::Month - Calendar widget which shows one month at a time.
 
 =head1 DESCRIPTION 
 
-Tk::Month is a general purpose calendar widget
-which shows one month at a time and allowes
+C<Tk::Month> is a general purpose calendar widget
+which shows one month at a time and allows
 user defined button actions.
 
-=head1 FUNCTIONS
+=head1 METHODS
 
 =head2 $m->separator();
 
-	Adds a separator to the title menu.
+Adds a separator to the title menu.
 
 =head2 $m->command(...);
 
-	Adds an entry to the title menu. This can be used to add 
-	extra functionality, such as closing the calendar widget or
-	printing a month.
+Adds an entry to the title menu. This can be used to add 
+extra functionality, such as closing the calendar widget or
+printing a month.
 
 =over 3
 
@@ -1243,74 +1228,83 @@ user defined button actions.
 
 =head2 -month => 'month'
 
-	Sets the required month. The default is the current month.
+Sets the required month. The default is the current month.
 
 =head2 -year => 'year'
 
-	Sets the required year. The default is the current year.
+Sets the required year. The default is the current year.
 
 =head2 -title => 'strftime format'
 
-	Sets the format for the widget title.
-	The default is '%B %Y'.
+Sets the format for the widget title.
+The default is C<%B %Y>.
 
 =head2 -command => \&press
 
-	Set the command to execute when a button is pressed.
-	This function must accept a string
-	(the title of the Month widget)
-	and an array of arrays of dates.
-	Each date is of the format specified by the -printformat option.
-	The default is to print out the list on standard output.
+Set the command to execute when a button is pressed.
+This function must accept a string
+(the title of the Month widget)
+and an array of arrays of dates.
+Each date is of the format specified by the -printformat option.
+The default is to print out the list on standard output.
 
 =head2 -printformat	=> "strftime format"
 
-	Set the default format for dates when they are passed in an
-	array of arrays to the -command function.
-	The default is '%e %B %Y'.
+Set the default format for dates when they are passed in an
+array of arrays to the -command function.
+The default is C<%d %B %Y>.
 
 =head2 -dayformat	=> "strftime format"
 
-	Set the default format for the days within the widget.
-	The default is '%e', i.e. the date of each day.
-
-=head2 DISCONTINUED -printcommand	=> \&print
-
-	Add an entry to the title menu using the 'command' function.
-
-=head2 DISCONTINUTED -close		=> $widget,
-
-	Add an entry to the title menu using the 'command' function.
+Set the default format for the days within the widget.
+The default is C<%d>, i.e. the date of each day.
 
 =head2 -showall		=> [0|1]
 
-	Causes the dates on buttons not actually in the month to be
-	dsiplay. The default is to not show these dates.
+Causes the dates on buttons not actually in the month to be
+dsiplay. The default is to not show these dates.
 
 =head2 -includeall	=> [0|1]
 
-	Causes the side buttons to include all the non-month dates.
-	The defaults is to include all the dates.
-
+Causes the side buttons to include all the non-month dates.
+The defaults is to include all the dates.
 
 =head2 -first	=> [0|1|2|3|4|5|6]
 
-	Sets the first day of the week.
-	The default is 0 (i.e. Sunday).
+Sets the first day of the week.
+The default is C<0> (i.e. Sunday).
 
 =head2 -navigation	=> [0|1],
 
-	Sets whether the navigation buttons and menu are included.
-	The default is to show the naviagation aids.
+Sets whether the navigation buttons and menu are included.
+The default is to show the naviagation aids.
 
 =head2 -side	=> [0|1],
 
-	Sets whether the side buttons are included.
-	The default is to show the side button aids.
+Sets whether the side buttons are included.
+The default is to show the side button aids.
 
-=over 3
+=head1 SEE ALSO
 
-=back 
+See L<Tk> for Perl/Tk documentation.
+
+See L<Tk::MiniCalendar> for another Perl/Tk calendar widget
+implementation.
+
+=head1 AUTHOR
+
+Anthony R Fletcher, E<lt>a r i f 'a-t' c p a n . o r gE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 1998-2014 by Anthony R Fletcher.
+All rights reserved.
+Please retain my name on any bits taken from this code.
+This code is supplied as-is - use at your own risk.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.16.3 or,
+at your option, any later version of Perl 5 you may have available.
 
 =cut
 
